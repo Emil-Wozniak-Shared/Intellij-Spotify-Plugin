@@ -6,3 +6,4 @@ pluginManagement {
 }
 
 rootProject.name = "SpotifyPlugin"
+include("api")

@@ -20,6 +20,7 @@ intellij {
     plugins.set(listOf(/* Plugin Dependencies */))
 
     dependencies {
+        api(project(":api"))
         implementation("se.michaelthelin.spotify:spotify-web-api-java:8.0.0")
         implementation("com.google.code.gson:gson:2.10.1")
         implementation("io.arrow-kt:arrow-core:1.2.0-RC")

@@ -1,4 +1,4 @@
-package pl.ejdev.spotifyplugin.errors
+package pl.ejdev.spotifyplugin.api.errors
 
 sealed class BaseError(val message: String)
 
