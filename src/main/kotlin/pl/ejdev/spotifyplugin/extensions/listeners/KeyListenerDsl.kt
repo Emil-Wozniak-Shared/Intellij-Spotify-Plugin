@@ -1,4 +1,4 @@
-package pl.ejdev.spotifyplugin.listeners
+package pl.ejdev.spotifyplugin.extensions.listeners
 
 import pl.ejdev.spotifyplugin.extensions.removeLast
 import java.awt.Component

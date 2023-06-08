@@ -4,7 +4,8 @@ import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.State
 import com.intellij.openapi.project.Project
-import pl.ejdev.spotifyplugin.dto.PlaylistState
+import pl.ejdev.spotifyplugin.api.service.SpotifyApiService
+import pl.ejdev.spotifyplugin.model.PlaylistState
 import se.michaelthelin.spotify.model_objects.IPlaylistItem
 import se.michaelthelin.spotify.model_objects.specification.PlaylistTrack
 

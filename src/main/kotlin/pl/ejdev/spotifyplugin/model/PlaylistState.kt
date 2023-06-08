@@ -1,4 +1,4 @@
-package pl.ejdev.spotifyplugin.dto
+package pl.ejdev.spotifyplugin.model
 
 data class PlaylistState(
     var name: String = "",
