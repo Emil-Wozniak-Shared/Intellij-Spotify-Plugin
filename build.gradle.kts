@@ -25,6 +25,11 @@ intellij {
         implementation("com.google.code.gson:gson:2.10.1")
         implementation("io.arrow-kt:arrow-core:1.2.0-RC")
         implementation("io.arrow-kt:arrow-fx-coroutines:1.2.0-RC")
+
+        // Logging API
+        implementation("ch.qos.logback:logback-core:1.4.7")
+        implementation("ch.qos.logback:logback-classic:1.4.7")
+
     }
 }
 
