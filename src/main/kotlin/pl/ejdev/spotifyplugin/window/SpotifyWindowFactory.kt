@@ -1,5 +1,6 @@
 package pl.ejdev.spotifyplugin.window
 
+import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
@@ -7,7 +8,7 @@ import com.intellij.ui.content.ContentFactory
 
 private const val LOCKED = false
 
-internal class SpotifyWindowFactory : ToolWindowFactory {
+internal class SpotifyWindowFactory : ToolWindowFactory, DumbAware {
     private val contentFactory: ContentFactory = ContentFactory.getInstance()
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {

@@ -1,6 +1,8 @@
 package pl.ejdev.spotifyplugin.window
 
 import com.intellij.openapi.components.service
+import com.intellij.openapi.project.DumbAware
+import com.intellij.openapi.project.DumbUtil
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.ui.components.JBTextField
 import com.intellij.ui.dsl.builder.Cell
@@ -13,7 +15,7 @@ import pl.ejdev.spotifyplugin.window.configurations.GET_PLAYLIST
 import java.awt.event.KeyEvent
 import javax.swing.JLabel
 
-internal class SpotifyWindow(private val toolWindow: ToolWindow) {
+internal class SpotifyWindow(private val toolWindow: ToolWindow): DumbUtil, DumbAware {
     private val service = toolWindow.project.service<SpotifyService>()
     private val playlist = service.state
 
@@ -74,5 +76,9 @@ internal class SpotifyWindow(private val toolWindow: ToolWindow) {
                 }
             }
         }
+    }
+
+    override fun mayUseIndices(): Boolean {
+        return false;
     }
 }
