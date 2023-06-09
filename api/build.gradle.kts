@@ -11,6 +11,8 @@ repositories {
 }
 
 dependencies {
+    val kotest_version: String by project
+
     implementation("se.michaelthelin.spotify:spotify-web-api-java:8.0.0")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("io.arrow-kt:arrow-core:1.2.0-RC")
@@ -19,6 +21,11 @@ dependencies {
 
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+
+    testImplementation("io.kotest:kotest-runner-junit5:$kotest_version")
+    testImplementation("io.kotest:kotest-assertions-core:$kotest_version")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:$kotest_version")
+    testImplementation("io.kotest:kotest-framework-engine-jvm:$kotest_version")
 }
 
 tasks {
