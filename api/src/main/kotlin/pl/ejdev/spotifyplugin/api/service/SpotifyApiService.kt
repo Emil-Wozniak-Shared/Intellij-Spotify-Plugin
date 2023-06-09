@@ -9,18 +9,20 @@ import pl.ejdev.spotifyplugin.api.errors.SpotifyApiError
 import se.michaelthelin.spotify.SpotifyApi
 import se.michaelthelin.spotify.model_objects.specification.Playlist
 
-private val logger = KotlinLogging.logger {  }
+private val logger = KotlinLogging.logger { }
 
-class SpotifyApiService {
+class SpotifyApiService(
+    private val accessTokenService: SpotifyAccessTokenService
+) {
     private var spotifyApiInstance: SpotifyApi = SpotifyApi.Builder().build()
-    private val accessTokenService: SpotifyAccessTokenService = SpotifyAccessTokenService()
 
     // Classic Rock Workout TODO we need more than that
     fun getPlaylist(id: String = "37i9dQZF1DWYNSm3Z3MxiM"): Either<BaseError, Playlist> =
         either<BaseError, Playlist> {
             try {
+                val body = accessTokenService.requestToken().body()
                 spotifyApiInstance
-                    .apply { accessToken = accessTokenService.requestAccessToken().getAccessToken() }
+                    .apply { this.accessToken = body.access_token }
                     .getPlaylist(id)
                     .market(CountryCode.SE)
                     .build()
