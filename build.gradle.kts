@@ -19,12 +19,20 @@ intellij {
 
     plugins.set(listOf(/* Plugin Dependencies */))
 
+    val kotest_version: String by project
+    val arrow_version: String by project
+
     dependencies {
         api(project(":api"))
         implementation("se.michaelthelin.spotify:spotify-web-api-java:8.0.0")
         implementation("com.google.code.gson:gson:2.10.1")
-        implementation("io.arrow-kt:arrow-core:1.2.0-RC")
-        implementation("io.arrow-kt:arrow-fx-coroutines:1.2.0-RC")
+        implementation("io.arrow-kt:arrow-core:$arrow_version")
+        implementation("io.arrow-kt:arrow-fx-coroutines:$arrow_version")
+
+        testImplementation("io.kotest:kotest-runner-junit5:$kotest_version")
+        testImplementation("io.kotest:kotest-assertions-core:$kotest_version")
+        testImplementation("io.kotest:kotest-assertions-core-jvm:$kotest_version")
+        testImplementation("io.kotest:kotest-framework-engine-jvm:$kotest_version")
 
         // Logging API
         implementation("ch.qos.logback:logback-core:1.4.7")
@@ -58,3 +66,4 @@ tasks {
         token.set(System.getenv("PUBLISH_TOKEN"))
     }
 }
+
