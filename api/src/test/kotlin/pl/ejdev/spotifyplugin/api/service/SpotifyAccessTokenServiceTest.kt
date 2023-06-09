@@ -7,7 +7,7 @@ import java.net.http.HttpClient
 
 class SpotifyAccessTokenServiceTest : FeatureSpec({
     feature("Spotify access token service ") {
-        val subject = SpotifyAccessTokenService()
+        val subject = SpotifyAccessTokenService
 
         scenario("returns access token from Spotify API") {
             val response = subject.requestToken()
