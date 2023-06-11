@@ -17,28 +17,37 @@ class SpotifyService(
     private val project: Project
 ) : PersistentStateComponent<PlaylistState>, DumbAware {
     private val spotifyApiService: SpotifyApiService = SpotifyApiService(SpotifyAccessTokenService)
-    private var _state: PlaylistState = PlaylistState()
+    private var playlistState: PlaylistState = PlaylistState()
 
-    override fun getState(): PlaylistState = _state
+    override fun getState(): PlaylistState = playlistState
+    fun authorizationCodeUri() = spotifyApiService.authorizationCodeUri()
+
+    fun authorizationCode() = spotifyApiService.authorizationCode()
+
+    fun setCode(code: String) = spotifyApiService.setCode(code)
 
     override fun loadState(state: PlaylistState) {
         fetchPlaylist()
         state.apply {
-            name = _state.name
-            description = _state.description
-            tracks = _state.tracks
+            name = playlistState.name
+            description = playlistState.description
+            tracks = playlistState.tracks
         }
     }
 
     private fun fetchPlaylist() {
-        spotifyApiService.getPlaylist().map {
-            _state = PlaylistState(
-                name = it.name,
-                description = it.description,
+        spotifyApiService.getPlaylist(playlistState.id).map {
+            playlistState.apply {
+                name = it.name
+                description = it.description
                 tracks = it.tracks.items
                     .map(PlaylistTrack::getTrack)
-                    .associate { item: IPlaylistItem -> item.name to item.id }
-            )
+                    .associate { item: IPlaylistItem -> item.name to item.href }
+            }
         }
+    }
+
+    fun addToQueue(href: String) {
+        spotifyApiService.addToQueue(playlistState.id, href)
     }
 }
