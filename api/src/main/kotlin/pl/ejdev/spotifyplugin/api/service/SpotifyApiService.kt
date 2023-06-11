@@ -11,6 +11,7 @@ import pl.ejdev.spotifyplugin.api.errors.BaseError
 import pl.ejdev.spotifyplugin.api.errors.SpotifyApiError
 import se.michaelthelin.spotify.SpotifyApi
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException
+import se.michaelthelin.spotify.model_objects.special.SnapshotResult
 import se.michaelthelin.spotify.model_objects.specification.Playlist
 import java.io.IOException
 import java.net.URI
@@ -51,28 +52,36 @@ class SpotifyApiService(
     }
 
 
-    // Classic Rock Workout TODO we need more than that
     fun getPlaylist(id: String): Either<BaseError, Playlist> =
         either<BaseError, Playlist> {
+            logger.warn { "Fetch playlist: $id" }
             try {
-                val body = accessTokenService.requestToken().body()
-                spotifyApi
-                    .apply { this.accessToken = body.access_token }
-                    .getPlaylist(id)
-                    .market(CountryCode.SE)
-                    .build()
-                    .execute()
+                if (spotifyApi.accessToken != null) {
+                    spotifyApi
+                        .getPlaylist(id)
+                        .market(CountryCode.PL)
+                        .build()
+                        .execute()
+                        .also { logger.warn { "Playlist fetched ${it.name}" } }
+                } else raise(SpotifyApiError("No access token"))
             } catch (e: Exception) {
+                logger.error { "${e.message}" }
                 raise(SpotifyApiError(e.message!!))
             }
         }
+
 
     fun setCode(code: String) {
         this.code = code
         logger.warn { "code: $code" }
     }
 
-    fun addToQueue(id: String, href: String) {
-        spotifyApi.addItemsToPlaylist(id, arrayOf(href)).build().execute()
-    }
+    fun addToQueue(id: String, href: String): Either<BaseError, SnapshotResult> =
+        either<BaseError, SnapshotResult> {
+            try {
+                spotifyApi.addItemsToPlaylist(id, arrayOf(href)).build().execute()
+            } catch (e: Exception) {
+                raise(SpotifyApiError(e.message!!))
+            }
+        }
 }
