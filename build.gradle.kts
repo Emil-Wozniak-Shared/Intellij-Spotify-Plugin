@@ -28,6 +28,7 @@ intellij {
         implementation("com.google.code.gson:gson:2.10.1")
         implementation("io.arrow-kt:arrow-core:$arrow_version")
         implementation("io.arrow-kt:arrow-fx-coroutines:$arrow_version")
+        implementation("io.github.microutils:kotlin-logging:3.0.5")
 
         testImplementation("io.kotest:kotest-runner-junit5:$kotest_version")
         testImplementation("io.kotest:kotest-assertions-core:$kotest_version")

@@ -38,10 +38,14 @@ class SpotifyApiService(
 
     fun authorizationCode() {
         try {
-            val authorizationCodeCredentials = spotifyApi.authorizationCode(code).build().execute()
-            spotifyApi.accessToken = authorizationCodeCredentials.accessToken
-            spotifyApi.refreshToken = authorizationCodeCredentials.refreshToken
-            logger.warn("Expires in: " + authorizationCodeCredentials.expiresIn)
+            if (code.isNotBlank()) {
+                val authorizationCodeCredentials = spotifyApi.authorizationCode(code).build().execute()
+                spotifyApi.accessToken = authorizationCodeCredentials.accessToken
+                spotifyApi.refreshToken = authorizationCodeCredentials.refreshToken
+                logger.warn("Expires in: " + authorizationCodeCredentials.expiresIn)
+            } else {
+                logger.warn { "code is blank " }
+            }
         } catch (e: IOException) {
             logger.warn("Error: " + e.message)
         } catch (e: SpotifyWebApiException) {
@@ -63,7 +67,10 @@ class SpotifyApiService(
                         .build()
                         .execute()
                         .also { logger.warn { "Playlist fetched ${it.name}" } }
-                } else raise(SpotifyApiError("No access token"))
+                } else {
+                    logger.warn { "No access token" }
+                    raise(SpotifyApiError("No access token"))
+                }
             } catch (e: Exception) {
                 logger.error { "${e.message}" }
                 raise(SpotifyApiError(e.message!!))
