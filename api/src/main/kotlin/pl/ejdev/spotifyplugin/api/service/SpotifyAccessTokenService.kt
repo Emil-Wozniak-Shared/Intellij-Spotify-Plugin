@@ -36,4 +36,17 @@ object SpotifyAccessTokenService {
             .header(CONTENT_TYPE, APPLICATION_X_WWW_FORM_URLENCODED)
             .build()
 
+
+    fun accessToken(): HttpResponse<String> =
+        logger.warn { "Access token request" }
+            .run {
+                httpClient.send(
+                    HttpRequest.newBuilder()
+                        .POST(HttpRequest.BodyPublishers.ofString("""
+                            
+                        """.trimIndent()))
+                        .build(),
+                    HttpResponse.BodyHandlers.ofString()
+                )
+            }
 }
