@@ -1,63 +1,59 @@
 package pl.ejdev.spotifyplugin.window.components.section.authization
 
-import com.intellij.ui.JBColor
-import com.intellij.ui.components.BrowserLink
-import com.intellij.ui.components.JBTextField
-import com.intellij.ui.dsl.builder.Cell
 import com.intellij.ui.dsl.builder.Panel
-import com.intellij.ui.dsl.builder.RightGap
-import com.intellij.ui.dsl.builder.Row
-import com.intellij.util.ui.JBFont
-import pl.ejdev.spotifyplugin.extensions.listeners.defaultActions
-import pl.ejdev.spotifyplugin.extensions.listeners.keyListener
+import com.intellij.ui.jcef.JBCefBrowser
+import mu.KotlinLogging
+import org.cef.CefSettings
+import org.cef.browser.CefBrowser
+import org.cef.browser.CefFrame
+import org.cef.handler.CefDisplayHandler
 import pl.ejdev.spotifyplugin.service.SpotifyService
 import pl.ejdev.spotifyplugin.window.components.ui.h1label
-import pl.ejdev.spotifyplugin.window.listeners.PasteDocumentListener
-import java.awt.event.KeyEvent
-import javax.swing.JLabel
+import javax.swing.JPanel
 
-private const val AUTHORIZE = "Authorize"
 private const val AUTHORIZATION = "Authorization"
-private const val GET_CODE = "Get code"
+private const val CODE_PATTERN = "?code="
 
-private lateinit var bindText: Cell<JBTextField>
-private lateinit var label: Cell<JLabel>
+private val logger = KotlinLogging.logger { }
 
-fun Panel.authorizationPanel(
-    url: String,
-    service: SpotifyService,
-): Panel = panel {
+fun Panel.authorizationPanel(url: String, service: SpotifyService): Panel = panel {
     indent {
         row { h1label(AUTHORIZATION) }
-        row { cell(BrowserLink(GET_CODE, url)) }
-        row { label = label("") }
         row {
-            bindText = textField().apply {
-                component
-                component.document.addDocumentListener(PasteDocumentListener())
-                component.keyListener(
-                    typed = { label.component.text += it.keyChar.toString() },
-                    pressed = {},
-                    released = {
-                        val text = component.document.getText(0, component.document.length)
-                        label.component.text = it.defaultActions(text)
-                        when (it.keyChar) {
-                            KeyEvent.VK_ENTER.toChar() -> {
-                                service.setCode(label.component.text)
+            cell(JPanel().apply browser@{
+                add(JBCefBrowser(url).apply {
+                    this.cefBrowser.client.addDisplayHandler(object : CefDisplayHandler {
+                        override fun onAddressChange(browser: CefBrowser, frame: CefFrame, url: String) {
+                            logger.warn { "Address: $url" }
+                            if (url.contains(CODE_PATTERN)) {
+                                service.setCode(url.split(CODE_PATTERN)[1])
                                 service.authorizationCode()
+                                this@browser.isVisible = false
                             }
                         }
-                    }
-                )
-                gap(RightGap.COLUMNS)
-            }
-            button(AUTHORIZE) {
-                service.setCode(label.component.text)
-                service.authorizationCode()
-            }.apply {
-                component.foreground = JBColor.GREEN
-                component.font = JBFont.h4()
-            }
+
+                        override fun onTitleChange(browser: CefBrowser?, title: String?) {
+                        }
+
+                        override fun onTooltip(browser: CefBrowser?, text: String?): Boolean = true
+
+                        override fun onStatusMessage(browser: CefBrowser?, value: String?) {
+                        }
+
+                        override fun onConsoleMessage(
+                            browser: CefBrowser?,
+                            level: CefSettings.LogSeverity?,
+                            message: String?,
+                            source: String?,
+                            line: Int
+                        ): Boolean = true
+
+                        override fun onCursorChange(browser: CefBrowser?, cursorType: Int): Boolean = true
+                    })
+                }.component)
+            })
+
         }
     }
 }
+
