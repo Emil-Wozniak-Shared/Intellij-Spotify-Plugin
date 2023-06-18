@@ -18,15 +18,19 @@ import java.text.ParseException
 
 private val logger = KotlinLogging.logger { }
 
+private val SCOPES = listOf(
+    "user-read-birthdate",
+    "user-read-email",
+    "playlist-read-private",
+    "playlist-read-collaborative",
+)
+
 class SpotifyApiService {
     private var code: String = ""
 
     fun authorizationCodeUri(): URI =
         spotifyApi.authorizationCodeUri()
-            .scope("user-read-birthdate")
-            .scope("user-read-email")
-            .scope("playlist-read-private")
-            .scope("playlist-read-collaborative")
+            .apply { SCOPES.forEach { scope -> this.scope(scope) } }
             .build()
             .execute()
 
