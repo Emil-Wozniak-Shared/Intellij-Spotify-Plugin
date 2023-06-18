@@ -1,6 +1,6 @@
 package pl.ejdev.spotifyplugin.window.components.ui.table
 
-import pl.ejdev.spotifyplugin.model.SimplifiedPlaylistModel
+import arrow.core.Either
 import java.awt.Component
 import java.awt.EventQueue
 import java.awt.event.ActionEvent
@@ -15,7 +15,7 @@ import javax.swing.table.TableCellEditor
 
 internal class ButtonsEditor(
     private val table: JTable,
-    private val state: Array<SimplifiedPlaylistModel>,
+    private val showAction: (name: String) -> Either<Component, Component>,
 ) : AbstractCellEditor(), TableCellEditor {
     private val panel = ButtonsPanel()
     private var editorValue: Any? = null
@@ -46,7 +46,7 @@ internal class ButtonsEditor(
 
     init {
         panel.buttons[0].action = PlayAction(table)
-        panel.buttons[1].action = ShowAction(table, state)
+        panel.buttons[1].action = ShowAction(table, showAction)
         val handler = EditingStopHandler()
         panel.buttons.forEach { button ->
             button.addMouseListener(handler)

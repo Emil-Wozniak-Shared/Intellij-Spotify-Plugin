@@ -21,8 +21,8 @@ class UserPlaylistSpotifyService : PersistentStateComponent<Array<SimplifiedPlay
 
     override fun loadState(state: Array<SimplifiedPlaylistModel>) {
         getCurrentUserPlaylists()
-            .onRight {
-                val pages = it.items.map(SimplifiedPlaylistModel.Companion::from)
+            .onRight { paging ->
+                val pages = paging.items.map(SimplifiedPlaylistModel::from)
                 serviceState = pages.toTypedArray()
                 pages.forEach { state + it }
             }

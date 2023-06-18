@@ -1,7 +1,8 @@
 package pl.ejdev.spotifyplugin.window.components.ui.table
 
+import arrow.core.Either
 import com.intellij.ui.table.JBTable
-import pl.ejdev.spotifyplugin.model.SimplifiedPlaylistModel
+import java.awt.Component
 import javax.swing.table.DefaultTableModel
 
 fun actionTableModel(
@@ -20,12 +21,12 @@ fun actionTable(): JBTable =
         override fun getColumnClass(column: Int): Class<*> = getValueAt(0, column).javaClass
     })
 
-fun JBTable.actionTableColumnRenderer(state: Array<SimplifiedPlaylistModel> = arrayOf()) = also { table ->
+fun JBTable.actionTableColumnRenderer(showAction: (name: String) -> Either<Component, Component>) = also { table ->
     rowHeight = 36
     visibleRowCount = model.columnCount
     columnModel.getColumn(1).run {
         cellRenderer = ButtonsRenderer()
-        cellEditor = ButtonsEditor(table, state)
+        cellEditor = ButtonsEditor(table, showAction)
         width = 300
     }
 }

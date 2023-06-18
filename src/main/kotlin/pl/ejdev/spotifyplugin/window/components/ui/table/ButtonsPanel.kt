@@ -2,6 +2,7 @@ package pl.ejdev.spotifyplugin.window.components.ui.table
 
 import com.intellij.icons.AllIcons.Actions.Search
 import com.intellij.icons.AllIcons.RunConfigurations.TestState.Run
+import pl.ejdev.spotifyplugin.window.components.ui.button.iconButton
 import java.awt.FlowLayout
 import java.util.*
 import javax.swing.JButton
@@ -23,14 +24,7 @@ internal class ButtonsPanel : JPanel(FlowLayout(FlowLayout.LEFT)) {
                 Actions.PLAY -> Run
                 Actions.SHOW -> Search
             }
-            val button = JButton(icon)
-                .apply {
-                    isOpaque = false
-                    isContentAreaFilled = false
-                    isBorderPainted = false
-                    isFocusable = false
-                    isRolloverEnabled = false
-                }
+            val button = iconButton(icon)
             add(button)
             buttons.add(button)
         }
