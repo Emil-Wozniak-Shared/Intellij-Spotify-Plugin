@@ -1,6 +1,5 @@
 package pl.ejdev.spotifyplugin.model
 
-import pl.ejdev.spotifyplugin.service.UserPlaylistSpotifyService
 import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified
 
 data class SimplifiedPlaylistModel(
@@ -11,7 +10,7 @@ data class SimplifiedPlaylistModel(
     var name: String? = null,
     var publicAccess: Boolean? = null,
     var snapshotId: String? = null,
-    var tracks: UserPlaylistSpotifyService.PlaylistTracksInformation? = null,
+    var tracks: PlaylistTracksInformation? = null,
     var type: ModelObjectTypeModel? = null,
     var uri: String? = null,
 ) {
@@ -26,7 +25,7 @@ data class SimplifiedPlaylistModel(
                 name = name,
                 publicAccess = isPublicAccess,
                 snapshotId = snapshotId,
-                tracks = tracks?.run { UserPlaylistSpotifyService.PlaylistTracksInformation(href, total) },
+                tracks = tracks?.run { PlaylistTracksInformation(href, total) },
                 type = type?.name?.let(ModelObjectTypeModel::valueOf),
                 uri = uri
             )

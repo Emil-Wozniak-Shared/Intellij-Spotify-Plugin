@@ -31,8 +31,4 @@ class UserPlaylistSpotifyService : PersistentStateComponent<Array<SimplifiedPlay
     private fun getCurrentUserPlaylists(): Either<BaseError, Paging<PlaylistSimplified>> =
         spotifyApiService.getCurrentUserPlaylists()
 
-    data class PlaylistTracksInformation(
-        var href: String? = null,
-        var total: Int? = null
-    )
 }
