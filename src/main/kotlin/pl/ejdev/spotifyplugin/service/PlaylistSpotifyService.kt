@@ -6,7 +6,8 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.State
 import com.intellij.openapi.project.DumbAware
 import pl.ejdev.spotifyplugin.api.errors.BaseError
-import pl.ejdev.spotifyplugin.api.service.SpotifyApiService
+import pl.ejdev.spotifyplugin.api.service.playlist.addTrackToQueue
+import pl.ejdev.spotifyplugin.api.service.playlist.fetchPlaylist
 import pl.ejdev.spotifyplugin.model.PlaylistState
 import pl.ejdev.spotifyplugin.model.TrackDetails
 import se.michaelthelin.spotify.model_objects.IPlaylistItem
@@ -16,7 +17,6 @@ import se.michaelthelin.spotify.model_objects.specification.PlaylistTrack
 @Service(Service.Level.PROJECT)
 @State(name = "Playlist")
 class PlaylistSpotifyService : PersistentStateComponent<PlaylistState>, DumbAware {
-    private val spotifyApiService: SpotifyApiService = SpotifyApiService()
     private var playlistState: PlaylistState = PlaylistState()
 
     override fun getState(): PlaylistState = playlistState
@@ -30,18 +30,19 @@ class PlaylistSpotifyService : PersistentStateComponent<PlaylistState>, DumbAwar
         }
     }
 
-    fun fetchPlaylist(playlistId: String): Either<BaseError, PlaylistState> =
-        spotifyApiService.getPlaylist(playlistId).map {
+    fun getPlaylist(playlistId: String): Either<BaseError, PlaylistState> =
+        fetchPlaylist(playlistId).map {
             playlistState.apply {
                 id = playlistId
                 name = it.name
                 description = it.description
                 tracks = it.tracks.items
+                    .take(10)
                     .map(PlaylistTrack::getTrack)
                     .map { item: IPlaylistItem -> TrackDetails(item.name, item.href) }
             }
         }
 
     fun addToQueue(href: String): Either<BaseError, SnapshotResult> =
-        spotifyApiService.addToQueue(playlistState.id, href)
+        addTrackToQueue(playlistState.id, href)
 }

@@ -1,5 +1,6 @@
 package pl.ejdev.spotifyplugin.window.components.ui.dialog
 
+import com.intellij.ui.JBColor
 import pl.ejdev.spotifyplugin.window.utils.centerOnScreen
 import java.awt.Dialog
 import java.awt.Dimension
@@ -17,4 +18,5 @@ fun dialog(
     this.setSize(componentWidth, componentHeight)
     centerOnScreen(true, screenSize)
     isVisible = true
+    background = JBColor.WHITE
 }

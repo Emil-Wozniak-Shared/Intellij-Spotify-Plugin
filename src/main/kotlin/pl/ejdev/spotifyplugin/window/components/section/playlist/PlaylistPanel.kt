@@ -13,11 +13,12 @@ import pl.ejdev.spotifyplugin.window.components.ui.table.Actions
 import pl.ejdev.spotifyplugin.window.components.ui.table.actionTable
 import pl.ejdev.spotifyplugin.window.components.ui.table.actionTableColumnRenderer
 import pl.ejdev.spotifyplugin.window.components.ui.table.actionTableModel
-import java.awt.Label
+import java.awt.*
 import java.util.*
 import javax.swing.JLabel
 import javax.swing.JPanel
 import java.awt.Panel as AwtPanel
+
 
 private const val GET_PLAYLISTS_BUTTON_NAME = "Get Playlists"
 private const val COLUMN_1_NAME = "Playlists"
@@ -52,34 +53,52 @@ fun Panel.playlistPanel(
                         either {
                             playlistState.find { it.name == name }
                                 ?.let { playlist ->
-                                    val panel = AwtPanel()
-                                    playlist.id
-                                        ?.let(playlistSpotifyService::fetchPlaylist)
-                                        ?.onRight { playlistState ->
-                                            panel.add(Label(playlistState.name))
-                                            playlistState.tracks.forEach { (name, href) ->
-                                                panel.add(AwtPanel().apply {
-                                                    add(iconButton(Run) {
-                                                        playlistSpotifyService.addToQueue(href)
-                                                    })
-                                                    add(JLabel(name))
+                                    AwtPanel(GridLayout(3, 1)).also { panel ->
+                                        playlistSpotifyService.getPlaylist(requireNotNull(playlist.id))
+                                            .onRight { state ->
+                                                panel.add(GridBag {
+                                                    add(Label(state.name), x = 1, y = 0)
+                                                    state.tracks.forEachIndexed { index, (name, href) ->
+                                                        add(
+                                                            AwtPanel(GridLayout(state.tracks.size - 1, 2)).apply {
+                                                                add(iconButton(Run) {
+                                                                    playlistSpotifyService.addToQueue(href)
+                                                                })
+                                                                add(JLabel(name))
+                                                            },
+                                                            x = 0,
+                                                            y = index + 1
+                                                        )
+                                                    }
                                                 })
                                             }
-                                        }
-                                    panel
+                                    }
                                 }
                                 ?: raise(AwtPanel())
                         }
                     }
-
                 }
             }
         }
         row {
             table = actionTable().actionTableColumnRenderer { either { AwtPanel() } }
-            cell(
-                JPanel(MigLayout(LAYOUT_CONSTRAINS, COLUMNS_CONSTRAINS))
-                    .apply { add(JBScrollPane(table)) }
-            )
+            cell(JPanel(MigLayout(LAYOUT_CONSTRAINS, COLUMNS_CONSTRAINS)).apply { add(JBScrollPane(table)) })
         }
     }
+
+
+class GridBag : JPanel() {
+    private var constraints = GridBagConstraints()
+
+    companion object {
+        operator fun invoke(builder: GridBag.() -> Unit): Component = GridBag()
+            .apply { layout = GridBagLayout() }
+            .apply(builder)
+    }
+
+    fun add(component: Component, x: Int, y: Int) {
+        constraints.gridx = x
+        constraints.gridy = y
+        add(component, constraints)
+    }
+}
