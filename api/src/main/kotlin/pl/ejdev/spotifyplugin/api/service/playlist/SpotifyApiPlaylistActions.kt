@@ -5,21 +5,21 @@ import com.neovisionaries.i18n.CountryCode
 import mu.KotlinLogging
 import pl.ejdev.spotifyplugin.api.errors.BaseError
 import pl.ejdev.spotifyplugin.api.service.spotifyApi
-import pl.ejdev.spotifyplugin.api.utils.tryWithApi
+import pl.ejdev.spotifyplugin.api.utils.tryWithAuthorizedApi
 import se.michaelthelin.spotify.model_objects.special.SnapshotResult
 import se.michaelthelin.spotify.model_objects.specification.Paging
 import se.michaelthelin.spotify.model_objects.specification.Playlist
 import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified
-import java.net.URI
 
 private val logger = KotlinLogging.logger { }
 
-fun fetchCurrentUserPlaylists(): Either<BaseError, Paging<PlaylistSimplified>> = tryWithApi(
-    message = "Get user playlists",
-    perform = { listOfCurrentUsersPlaylists.build().execute() }
-)
+fun fetchCurrentUserPlaylists(): Either<BaseError, Paging<PlaylistSimplified>> =
+    tryWithAuthorizedApi(spotifyApi, "Get user playlists") {
+        listOfCurrentUsersPlaylists.build().execute()
+    }
 
-fun fetchPlaylist(id: String): Either<BaseError, Playlist> = tryWithApi<Playlist>(
+fun fetchPlaylist(id: String): Either<BaseError, Playlist> = tryWithAuthorizedApi<Playlist>(
+    spotifyApi,
     message = "Fetch playlist: $id",
     perform = {
         getPlaylist(id)
@@ -31,7 +31,6 @@ fun fetchPlaylist(id: String): Either<BaseError, Playlist> = tryWithApi<Playlist
 )
 
 fun addTrackToQueue(id: String, href: String): Either<BaseError, SnapshotResult> =
-    tryWithApi(
-        message = "add track to queue",
-        perform = { addItemsToPlaylist(id, arrayOf(href)).build().execute() }
-    )
+    tryWithAuthorizedApi(spotifyApi,"add track to queue") {
+        addItemsToPlaylist(id, arrayOf(href)).build().execute()
+    }

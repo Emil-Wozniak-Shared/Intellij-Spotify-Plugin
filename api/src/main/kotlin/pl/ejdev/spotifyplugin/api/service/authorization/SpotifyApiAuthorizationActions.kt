@@ -2,7 +2,7 @@ package pl.ejdev.spotifyplugin.api.service.authorization
 
 import mu.KotlinLogging
 import pl.ejdev.spotifyplugin.api.service.spotifyApi
-import pl.ejdev.spotifyplugin.api.utils.tryWithApi
+import pl.ejdev.spotifyplugin.api.utils.tryAuthorizeApi
 import java.net.URI
 
 private val logger = KotlinLogging.logger { }
@@ -28,7 +28,8 @@ fun getAuthorizationCodeUri(): URI =
         .execute()
 
 fun fetchAuthorizationCode() {
-    tryWithApi(
+    tryAuthorizeApi(
+        spotifyApi,
         message = "Get authorization code",
         perform = {
             val authorizationCodeCredentials = spotifyApi.authorizationCode(clientCode).build().execute()

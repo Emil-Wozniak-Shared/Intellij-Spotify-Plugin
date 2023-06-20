@@ -9,6 +9,6 @@ data class PlaylistState(
 )
 
 data class TrackDetails(
-    val name: String,
-    val href: String
+    val name: String = "",
+    val href: String = ""
 )
