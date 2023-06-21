@@ -7,45 +7,34 @@ import com.intellij.openapi.components.Service.Level.PROJECT
 import com.intellij.openapi.components.State
 import com.intellij.openapi.project.DumbAware
 import pl.ejdev.spotifyplugin.api.errors.BaseError
-import pl.ejdev.spotifyplugin.api.service.SpotifyApiService
+import pl.ejdev.spotifyplugin.api.service.*
+import pl.ejdev.spotifyplugin.api.service.authorization.fetchAuthorizationCode
+import pl.ejdev.spotifyplugin.api.service.authorization.getAuthorizationCodeUri
+import pl.ejdev.spotifyplugin.api.service.authorization.setClientCode
+import pl.ejdev.spotifyplugin.api.service.user.fetchCurrentUser
 import pl.ejdev.spotifyplugin.model.UserState
 import se.michaelthelin.spotify.model_objects.specification.User
 
 @Service(PROJECT)
 @State(name = "Authorization")
 class SpotifyAuthorizationService : PersistentStateComponent<UserState>, DumbAware {
-    private val spotifyApiService: SpotifyApiService = SpotifyApiService()
 
     private var userState: UserState = UserState()
 
     override fun getState(): UserState = userState
     override fun loadState(state: UserState) {
-        authorizationCode()
+        getAuthorizationCode()
         getCurrentUser()
             .map(state::update)
             .map { userState = it }
     }
 
-    fun setCode(code: String) = spotifyApiService.setCode(code)
+    fun setCode(code: String) = setClientCode(code)
 
-    internal fun authorizationCodeUri() = spotifyApiService.authorizationCodeUri()
+    fun authorizationCodeUri() = getAuthorizationCodeUri()
 
-    private fun authorizationCode() = spotifyApiService.authorizationCode()
+    private fun getAuthorizationCode() = fetchAuthorizationCode()
 
-    private fun getCurrentUser(): Either<BaseError, User> = spotifyApiService.getCurrentUser()
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+    private fun getCurrentUser(): Either<BaseError, User> = fetchCurrentUser()
 
-        other as SpotifyAuthorizationService
-
-        if (spotifyApiService != other.spotifyApiService) return false
-        return userState == other.userState
-    }
-
-    override fun hashCode(): Int {
-        var result = spotifyApiService.hashCode()
-        result = 31 * result + userState.hashCode()
-        return result
-    }
 }
