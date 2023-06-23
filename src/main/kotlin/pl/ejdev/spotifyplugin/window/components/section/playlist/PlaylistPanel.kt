@@ -8,15 +8,19 @@ import com.intellij.ui.table.JBTable
 import net.miginfocom.swing.MigLayout
 import pl.ejdev.spotifyplugin.service.PlaylistSpotifyService
 import pl.ejdev.spotifyplugin.service.UserPlaylistSpotifyService
-import pl.ejdev.spotifyplugin.window.components.ui.button.iconButton
+import pl.ejdev.spotifyplugin.window.components.ui.panel.jButton
+import pl.ejdev.spotifyplugin.window.components.ui.panel.jPanel
 import pl.ejdev.spotifyplugin.window.components.ui.table.Actions
 import pl.ejdev.spotifyplugin.window.components.ui.table.actionTable
 import pl.ejdev.spotifyplugin.window.components.ui.table.actionTableColumnRenderer
 import pl.ejdev.spotifyplugin.window.components.ui.table.actionTableModel
-import java.awt.*
 import java.util.*
+import javax.swing.GroupLayout
+import javax.swing.GroupLayout.Alignment.CENTER
+import javax.swing.JButton
 import javax.swing.JLabel
 import javax.swing.JPanel
+import javax.swing.SwingConstants.HORIZONTAL
 import java.awt.Panel as AwtPanel
 
 
@@ -51,30 +55,63 @@ fun Panel.playlistPanel(
                     table.model = model
                     table.actionTableColumnRenderer { name ->
                         either {
-                            playlistState.find { it.name == name }
-                                ?.let { playlist ->
-                                    AwtPanel(GridLayout(3, 1)).also { panel ->
-                                        playlistSpotifyService.getPlaylist(requireNotNull(playlist.id))
-                                            .onRight { state ->
-                                                panel.add(GridBag {
-                                                    add(Label(state.name), x = 1, y = 0)
-                                                    state.tracks.forEachIndexed { index, (name, href) ->
-                                                        add(
-                                                            AwtPanel(GridLayout(state.tracks.size - 1, 2)).apply {
-                                                                add(iconButton(Run) {
-                                                                    playlistSpotifyService.addToQueue(href)
-                                                                })
-                                                                add(JLabel(name))
+                            playlistState.find { it.name == name }?.run {
+                                jPanel {
+                                    groupLayout {
+                                        rows { rows ->
+                                            playlistSpotifyService.getPlaylist(requireNotNull(id)).onRight { state ->
+                                                state.tracks.map { (name, href) ->
+                                                    rows.add(
+                                                        arrayOf(
+                                                            jButton(icon = Run) {
+                                                                playlistSpotifyService.addToQueue(href)
                                                             },
-                                                            x = 0,
-                                                            y = index + 1
+                                                            JLabel(name)
                                                         )
-                                                    }
-                                                })
+                                                    )
+                                                }
                                             }
+                                        }
                                     }
                                 }
-                                ?: raise(AwtPanel())
+                                JPanel().apply {
+                                    val layout = GroupLayout(this)
+                                    this.layout = layout
+                                    layout.autoCreateGaps = true
+                                    layout.autoCreateContainerGaps = true
+                                    playlistSpotifyService.getPlaylist(requireNotNull(id)).onRight { state ->
+                                        val rows = state.tracks.map { (name, href) ->
+                                            JButton(Run).apply {
+                                                addActionListener { playlistSpotifyService.addToQueue(href) }
+                                            } to JLabel(name)
+                                        }
+                                        layout.linkSize(
+                                            HORIZONTAL,
+                                            *rows.map { (button, _) -> button }.toTypedArray()
+                                        )
+                                        layout.createParallelGroup(CENTER).also { horizontal ->
+                                            horizontal.addGroup(
+                                                layout.createSequentialGroup()
+                                                    .addGroup(layout.createParallelGroup().apply {
+                                                        rows.forEach { (button, _) -> addComponent(button) }
+                                                    })
+                                                    .addGroup(layout.createParallelGroup().apply {
+                                                        rows.forEach { (_, label) -> addComponent(label) }
+                                                    })
+                                            ).let(layout::setHorizontalGroup)
+                                        }
+                                        layout.createSequentialGroup().also { vertical ->
+                                            rows.forEach { (button, label) ->
+                                                vertical.addGroup(
+                                                    layout.createParallelGroup()
+                                                        .addComponent(button)
+                                                        .addComponent(label)
+                                                )
+                                            }
+                                        }.let(layout::setVerticalGroup)
+                                    }
+                                }
+                            } ?: raise(AwtPanel())
                         }
                     }
                 }
@@ -85,20 +122,3 @@ fun Panel.playlistPanel(
             cell(JPanel(MigLayout(LAYOUT_CONSTRAINS, COLUMNS_CONSTRAINS)).apply { add(JBScrollPane(table)) })
         }
     }
-
-
-class GridBag : JPanel() {
-    private var constraints = GridBagConstraints()
-
-    companion object {
-        operator fun invoke(builder: GridBag.() -> Unit): Component = GridBag()
-            .apply { layout = GridBagLayout() }
-            .apply(builder)
-    }
-
-    fun add(component: Component, x: Int, y: Int) {
-        constraints.gridx = x
-        constraints.gridy = y
-        add(component, constraints)
-    }
-}
