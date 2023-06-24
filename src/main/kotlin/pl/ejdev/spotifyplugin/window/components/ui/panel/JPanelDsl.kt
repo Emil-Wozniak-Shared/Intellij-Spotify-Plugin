@@ -1,5 +1,6 @@
 package pl.ejdev.spotifyplugin.window.components.ui.panel
 
+import java.awt.Adjustable.HORIZONTAL
 import java.awt.Component
 import java.awt.event.ActionListener
 import javax.swing.GroupLayout
@@ -7,6 +8,32 @@ import javax.swing.Icon
 import javax.swing.JButton
 import javax.swing.JPanel
 
+/**
+ * ```kotlin
+ * jPanel {
+ *    groupLayout {
+ *        rows { rows ->
+ *            playlistSpotifyService.getPlaylist(requireNotNull(id)).onRight { state ->
+ *                state.tracks.map { (name, href) ->
+ *                    rows.add(
+ *                        arrayOf(
+ *                            jButton(icon = Run) {
+ *                                playlistSpotifyService.addToQueue(href)
+ *                            }.apply {
+ *                                preferredSize = Dimension(50, 30)
+ *                            },
+ *                            JLabel(name).apply {
+ *                                preferredSize = Dimension(100, 30)
+ *                            }
+ *                        )
+ *                    )
+ *                }
+ *            }
+ *        }
+ *    }
+ * }
+ * ```
+ */
 class GroupLayoutDsl(
     private val panel: JPanel,
     private val autoCreateGaps: Boolean = true,
@@ -23,28 +50,27 @@ class GroupLayoutDsl(
 
     fun rows(builder: (MutableList<Array<Component>>) -> Unit) = apply {
         rows.apply(builder)
+        layout.linkSize(HORIZONTAL, *rows.map(Array<Component>::first).toTypedArray())
         layout.createParallelGroup(GroupLayout.Alignment.CENTER).also { horizontal ->
             horizontal.addGroup(
-                layout.createSequentialGroup().apply {
-                    rows.forEachIndexed { index, components ->
-                        repeat((components.indices - 1).count()) {
-                            addGroup(layout.createParallelGroup().apply {
-                                components[index].let(::addComponent)
-                            })
+                layout.createSequentialGroup().also { sequentialGroup ->
+                    sequentialGroup.addGroup(layout.createParallelGroup().apply {
+                        rows.forEach { components ->
+                            components.forEach(::addComponent)
                         }
-                    }
+                    })
                 }
             )
         }.let(layout::setHorizontalGroup)
 
         layout.createSequentialGroup().also { vertical ->
-            vertical.addGroup(
-                layout.createParallelGroup().apply {
-                    rows.forEachIndexed { index, components ->
-                        components[index].let(::addComponent)
+            rows.forEach { components ->
+                vertical.addGroup(
+                    layout.createParallelGroup().apply {
+                        components.forEach(::addComponent)
                     }
-                }
-            )
+                )
+            }
         }.let(layout::setVerticalGroup)
     }
 }
@@ -61,5 +87,6 @@ fun jButton(text: String? = null, icon: Icon? = null, listener: ActionListener) 
         addActionListener(listener)
     }
 
-fun jPanel(builder: JPanelDsl.() -> Unit) =
-    JPanelDsl().also(builder).panel
+fun jPanel(builder: JPanelDsl.() -> Unit): JPanel {
+    return JPanelDsl().also(builder).panel
+}

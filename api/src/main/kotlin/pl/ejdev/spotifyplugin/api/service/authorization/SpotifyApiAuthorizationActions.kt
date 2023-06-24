@@ -17,6 +17,7 @@ fun setClientCode(code: String) {
 private val SCOPES = listOf(
     "user-read-birthdate",
     "user-read-email",
+    "user-modify-playback-state",
     "playlist-read-private",
     "playlist-read-collaborative",
 )

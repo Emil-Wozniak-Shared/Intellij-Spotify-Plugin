@@ -1,6 +1,7 @@
 package pl.ejdev.spotifyplugin.window.components.section.playlist
 
 import arrow.core.raise.either
+import com.intellij.dvcs.ui.NewBranchAction.icon
 import com.intellij.icons.AllIcons.RunConfigurations.TestState.Run
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.dsl.builder.Panel
@@ -8,20 +9,26 @@ import com.intellij.ui.table.JBTable
 import net.miginfocom.swing.MigLayout
 import pl.ejdev.spotifyplugin.service.PlaylistSpotifyService
 import pl.ejdev.spotifyplugin.service.UserPlaylistSpotifyService
+import pl.ejdev.spotifyplugin.window.components.ui.image.jImage
 import pl.ejdev.spotifyplugin.window.components.ui.panel.jButton
 import pl.ejdev.spotifyplugin.window.components.ui.panel.jPanel
 import pl.ejdev.spotifyplugin.window.components.ui.table.Actions
 import pl.ejdev.spotifyplugin.window.components.ui.table.actionTable
 import pl.ejdev.spotifyplugin.window.components.ui.table.actionTableColumnRenderer
 import pl.ejdev.spotifyplugin.window.components.ui.table.actionTableModel
+import java.awt.Adjustable.HORIZONTAL
+import java.awt.EventQueue
+import java.awt.Image
+import java.awt.RenderingHints.*
+import java.awt.image.BufferedImage
+import java.net.URL
 import java.util.*
+import javax.imageio.ImageIO
 import javax.swing.GroupLayout
 import javax.swing.GroupLayout.Alignment.CENTER
-import javax.swing.JButton
+import javax.swing.ImageIcon
 import javax.swing.JLabel
 import javax.swing.JPanel
-import javax.swing.SwingConstants.HORIZONTAL
-import java.awt.Panel as AwtPanel
 
 
 private const val GET_PLAYLISTS_BUTTON_NAME = "Get Playlists"
@@ -55,52 +62,39 @@ fun Panel.playlistPanel(
                     table.model = model
                     table.actionTableColumnRenderer { name ->
                         either {
-                            playlistState.find { it.name == name }?.run {
+                            playlistState.find { it.name == name }?.run model@{
+                                val image = this.images.firstOrNull()
+                                    ?.let { URL(it.url) }
+                                    ?.let { jImage(it) }
+                                    ?: JLabel()
                                 jPanel {
-                                    groupLayout {
-                                        rows { rows ->
-                                            playlistSpotifyService.getPlaylist(requireNotNull(id)).onRight { state ->
-                                                state.tracks.map { (name, href) ->
-                                                    rows.add(
-                                                        arrayOf(
-                                                            jButton(icon = Run) {
-                                                                playlistSpotifyService.addToQueue(href)
-                                                            },
-                                                            JLabel(name)
-                                                        )
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                JPanel().apply {
-                                    val layout = GroupLayout(this)
-                                    this.layout = layout
+                                    val layout = GroupLayout(this.panel)
+                                    this.panel.layout = layout
                                     layout.autoCreateGaps = true
                                     layout.autoCreateContainerGaps = true
                                     playlistSpotifyService.getPlaylist(requireNotNull(id)).onRight { state ->
-                                        val rows = state.tracks.map { (name, href) ->
-                                            JButton(Run).apply {
-                                                addActionListener { playlistSpotifyService.addToQueue(href) }
-                                            } to JLabel(name)
+                                        val rows = state.tracks.map { track ->
+                                            arrayOf(
+                                                jButton(icon = Run) { playlistSpotifyService.addToQueue(track.href) },
+                                                JLabel(track.name)
+                                            )
                                         }
-                                        layout.linkSize(
-                                            HORIZONTAL,
-                                            *rows.map { (button, _) -> button }.toTypedArray()
-                                        )
+                                        layout.linkSize(HORIZONTAL, *rows.map { (button, _) -> button }.toTypedArray())
                                         layout.createParallelGroup(CENTER).also { horizontal ->
+                                            horizontal.addComponent(image)
                                             horizontal.addGroup(
-                                                layout.createSequentialGroup()
-                                                    .addGroup(layout.createParallelGroup().apply {
+                                                layout.createSequentialGroup().also { group ->
+                                                    group.addGroup(layout.createParallelGroup().apply {
                                                         rows.forEach { (button, _) -> addComponent(button) }
                                                     })
-                                                    .addGroup(layout.createParallelGroup().apply {
+                                                    group.addGroup(layout.createParallelGroup().apply {
                                                         rows.forEach { (_, label) -> addComponent(label) }
                                                     })
+                                                }
                                             ).let(layout::setHorizontalGroup)
                                         }
                                         layout.createSequentialGroup().also { vertical ->
+                                            vertical.addComponent(image)
                                             rows.forEach { (button, label) ->
                                                 vertical.addGroup(
                                                     layout.createParallelGroup()
@@ -110,15 +104,17 @@ fun Panel.playlistPanel(
                                             }
                                         }.let(layout::setVerticalGroup)
                                     }
-                                }
-                            } ?: raise(AwtPanel())
+                                }.let(::JBScrollPane)
+
+                            } ?: raise(jPanel { })
                         }
                     }
                 }
             }
         }
         row {
-            table = actionTable().actionTableColumnRenderer { either { AwtPanel() } }
+            table = actionTable().actionTableColumnRenderer { either { jPanel { } } }
             cell(JPanel(MigLayout(LAYOUT_CONSTRAINS, COLUMNS_CONSTRAINS)).apply { add(JBScrollPane(table)) })
         }
     }
+

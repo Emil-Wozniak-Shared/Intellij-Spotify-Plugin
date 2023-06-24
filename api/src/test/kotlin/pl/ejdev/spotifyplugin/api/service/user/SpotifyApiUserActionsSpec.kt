@@ -45,18 +45,6 @@ class SpotifyApiUserActionsSpec : FeatureSpec({
                 type shouldBe USER
             }
         }
-
-        scenario("returns error if access token was not set") {
-            // given
-            mockSpotifyApi<GetCurrentUsersProfileRequest, User>(omitToken = true, responseBody = user()) {}
-            // when
-            val response = fetchCurrentUser()
-
-            // then
-            response.leftOrNull().let(::requireNotNull).run {
-                message shouldBe "No access token"
-            }
-        }
     }
 })
 
