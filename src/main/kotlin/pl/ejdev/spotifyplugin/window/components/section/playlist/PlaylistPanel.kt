@@ -1,12 +1,14 @@
 package pl.ejdev.spotifyplugin.window.components.section.playlist
 
 import arrow.core.raise.either
-import com.intellij.dvcs.ui.NewBranchAction.icon
 import com.intellij.icons.AllIcons.RunConfigurations.TestState.Run
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.dsl.builder.Panel
 import com.intellij.ui.table.JBTable
 import net.miginfocom.swing.MigLayout
+import pl.ejdev.spotifyplugin.api.service.player.AddItemToQueue
+import pl.ejdev.spotifyplugin.api.service.player.PlayAction
+import pl.ejdev.spotifyplugin.service.PlayerSpotifyService
 import pl.ejdev.spotifyplugin.service.PlaylistSpotifyService
 import pl.ejdev.spotifyplugin.service.UserPlaylistSpotifyService
 import pl.ejdev.spotifyplugin.window.components.ui.image.jImage
@@ -17,16 +19,10 @@ import pl.ejdev.spotifyplugin.window.components.ui.table.actionTable
 import pl.ejdev.spotifyplugin.window.components.ui.table.actionTableColumnRenderer
 import pl.ejdev.spotifyplugin.window.components.ui.table.actionTableModel
 import java.awt.Adjustable.HORIZONTAL
-import java.awt.EventQueue
-import java.awt.Image
-import java.awt.RenderingHints.*
-import java.awt.image.BufferedImage
 import java.net.URL
 import java.util.*
-import javax.imageio.ImageIO
 import javax.swing.GroupLayout
 import javax.swing.GroupLayout.Alignment.CENTER
-import javax.swing.ImageIcon
 import javax.swing.JLabel
 import javax.swing.JPanel
 
@@ -42,7 +38,8 @@ private lateinit var table: JBTable
 
 fun Panel.playlistPanel(
     userPlaylistSpotifyService: UserPlaylistSpotifyService,
-    playlistSpotifyService: PlaylistSpotifyService
+    playlistSpotifyService: PlaylistSpotifyService,
+    playerSpotifyService: PlayerSpotifyService
 ): Panel =
     panel {
         indent {
@@ -75,7 +72,11 @@ fun Panel.playlistPanel(
                                     playlistSpotifyService.getPlaylist(requireNotNull(id)).onRight { state ->
                                         val rows = state.tracks.map { track ->
                                             arrayOf(
-                                                jButton(icon = Run) { playlistSpotifyService.addToQueue(track.href) },
+                                                jButton(icon = Run) {
+                                                    playlistSpotifyService.addToQueue(track.href)
+                                                    playerSpotifyService.performPlaylistAction(AddItemToQueue(track.href))
+                                                    playerSpotifyService.performPlaylistAction(PlayAction)
+                                                },
                                                 JLabel(track.name)
                                             )
                                         }

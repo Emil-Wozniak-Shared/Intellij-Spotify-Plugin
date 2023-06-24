@@ -15,7 +15,7 @@ import se.michaelthelin.spotify.model_objects.special.SnapshotResult
 import se.michaelthelin.spotify.model_objects.specification.PlaylistTrack
 
 @Service(Service.Level.PROJECT)
-@State(name = "Playlist")
+@State(name = PLAYLIST)
 class PlaylistSpotifyService : PersistentStateComponent<PlaylistState>, DumbAware {
     private var playlistState: PlaylistState = PlaylistState()
 

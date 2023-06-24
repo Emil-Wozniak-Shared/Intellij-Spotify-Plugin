@@ -14,17 +14,9 @@ fun setClientCode(code: String) {
     logger.warn { "Client code: $clientCode" }
 }
 
-private val SCOPES = listOf(
-    "user-read-birthdate",
-    "user-read-email",
-    "user-modify-playback-state",
-    "playlist-read-private",
-    "playlist-read-collaborative",
-)
-
 fun getAuthorizationCodeUri(): URI =
     spotifyApi.authorizationCodeUri()
-        .apply { SCOPES.forEach { scope -> this.scope(scope) } }
+        .scope(SCOPES.joinToString(" "))
         .build()
         .execute()
 
@@ -38,7 +30,7 @@ fun fetchAuthorizationCode() {
             spotifyApi.refreshToken = authorizationCodeCredentials.refreshToken
             logger.warn("Expires in: " + authorizationCodeCredentials.expiresIn)
         },
-        condition = { clientCode.isNotBlank() },
+        condition = clientCode::isNotBlank,
         conditionFailedMessage = "Client code is blank"
     )
 }

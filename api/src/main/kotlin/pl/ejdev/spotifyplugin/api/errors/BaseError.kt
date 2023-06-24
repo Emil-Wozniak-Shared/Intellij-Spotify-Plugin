@@ -1,7 +1,7 @@
 package pl.ejdev.spotifyplugin.api.errors
 
-sealed class BaseError(val message: String)
+sealed class BaseError(open val message: String)
 
-class SpotifyApiError(message: String): BaseError(message)
+data class SpotifyApiError(override val message: String): BaseError(message)
 
 object NoAccessTokenError: BaseError("No access token")

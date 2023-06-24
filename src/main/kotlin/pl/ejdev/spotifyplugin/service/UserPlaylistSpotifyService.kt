@@ -10,7 +10,7 @@ import pl.ejdev.spotifyplugin.model.SimplifiedPlaylistModel
 import se.michaelthelin.spotify.model_objects.specification.*
 
 @Service(PROJECT)
-@State(name = "Playlists")
+@State(name = USER_PLAYLIST)
 class UserPlaylistSpotifyService : PersistentStateComponent<Array<SimplifiedPlaylistModel>>, DumbAware {
     private var serviceState = arrayOf<SimplifiedPlaylistModel>()
 

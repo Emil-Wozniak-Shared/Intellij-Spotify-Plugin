@@ -16,7 +16,7 @@ import pl.ejdev.spotifyplugin.model.UserState
 import se.michaelthelin.spotify.model_objects.specification.User
 
 @Service(PROJECT)
-@State(name = "Authorization")
+@State(name = AUTHORIZATION)
 class SpotifyAuthorizationService : PersistentStateComponent<UserState>, DumbAware {
 
     private var userState: UserState = UserState()
