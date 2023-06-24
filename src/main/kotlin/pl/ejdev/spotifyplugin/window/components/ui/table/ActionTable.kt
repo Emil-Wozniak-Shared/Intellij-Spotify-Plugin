@@ -7,9 +7,8 @@ import javax.swing.table.DefaultTableModel
 
 fun actionTableModel(
     data: Array<Array<Any>>,
-    column1: String,
-    column2: String,
-): DefaultTableModel = object : DefaultTableModel(data, arrayOf(column1, column2)) {
+    names: Array<String>
+): DefaultTableModel = object : DefaultTableModel(data, names) {
     override fun getColumnClass(column: Int): Class<*> = getValueAt(0, column).javaClass
 }
 
