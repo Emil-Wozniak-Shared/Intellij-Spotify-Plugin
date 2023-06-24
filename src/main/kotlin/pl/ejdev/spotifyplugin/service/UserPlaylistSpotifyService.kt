@@ -5,7 +5,8 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.Service.Level.PROJECT
 import com.intellij.openapi.components.State
 import com.intellij.openapi.project.DumbAware
-import pl.ejdev.spotifyplugin.api.service.playlist.fetchCurrentUserPlaylists
+import pl.ejdev.spotifyplugin.api.service.playlist.CurrentUserPlaylistsAction
+import pl.ejdev.spotifyplugin.api.service.playlist.playlistAction
 import pl.ejdev.spotifyplugin.model.SimplifiedPlaylistModel
 import se.michaelthelin.spotify.model_objects.specification.*
 
@@ -17,9 +18,12 @@ class UserPlaylistSpotifyService : PersistentStateComponent<Array<SimplifiedPlay
     override fun getState(): Array<SimplifiedPlaylistModel> = serviceState
 
     override fun loadState(state: Array<SimplifiedPlaylistModel>) {
-        fetchCurrentUserPlaylists()
+        playlistAction(CurrentUserPlaylistsAction)
+            .map { it as Paging<*> }
             .onRight { paging ->
-                val pages = paging.items.map(SimplifiedPlaylistModel::from)
+                val pages = paging.items
+                    .filterIsInstance<PlaylistSimplified>()
+                    .map(SimplifiedPlaylistModel::from)
                 serviceState = pages.toTypedArray()
                 pages.forEach { state + it }
             }
