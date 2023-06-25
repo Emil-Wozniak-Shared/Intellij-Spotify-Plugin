@@ -9,6 +9,7 @@ import org.cef.CefSettings
 import org.cef.browser.CefBrowser
 import org.cef.browser.CefFrame
 import org.cef.handler.CefDisplayHandler
+import pl.ejdev.spotifyplugin.service.DevicePlayerSpotifyService
 import pl.ejdev.spotifyplugin.service.SpotifyAuthorizationService
 import pl.ejdev.spotifyplugin.service.UserPlaylistSpotifyService
 import pl.ejdev.spotifyplugin.window.components.ui.h1label
@@ -29,6 +30,7 @@ fun Panel.authorizationPanel(
     url: String,
     spotifyAuthorizationService: SpotifyAuthorizationService,
     userPlaylistSpotifyService: UserPlaylistSpotifyService,
+    devicesSpotifyService: DevicePlayerSpotifyService,
 ): Panel = panel {
     indent {
         row { h1label(AUTHORIZATION) }
@@ -47,6 +49,7 @@ fun Panel.authorizationPanel(
                         displayHandler(
                             spotifyAuthorizationService,
                             userPlaylistSpotifyService,
+                            devicesSpotifyService,
                             jPanel = panel,
                             currentUserImageLabel
                         )
@@ -61,6 +64,7 @@ fun Panel.authorizationPanel(
 private fun displayHandler(
     service: SpotifyAuthorizationService,
     userPlaylistSpotifyService: UserPlaylistSpotifyService,
+    devicesSpotifyService: DevicePlayerSpotifyService,
     jPanel: JPanel,
     currentUserImageLabel: JLabel,
 ) = object : CefDisplayHandler {
@@ -79,6 +83,7 @@ private fun displayHandler(
             currentUserLabel.component.text = service.state.displayName
             currentUserLabel.visible(service.state.displayName != "")
             userPlaylistSpotifyService.loadState(userPlaylistSpotifyService.state)
+            devicesSpotifyService.loadState(devicesSpotifyService.state)
             jPanel.isVisible = false
         }
     }

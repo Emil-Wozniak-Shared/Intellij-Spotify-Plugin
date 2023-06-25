@@ -5,7 +5,6 @@ import com.intellij.icons.AllIcons.RunConfigurations.TestState.Run
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.dsl.builder.Panel
 import com.intellij.ui.table.JBTable
-import pl.ejdev.spotifyplugin.api.service.player.AddItemToQueue
 import pl.ejdev.spotifyplugin.api.service.player.PlayAction
 import pl.ejdev.spotifyplugin.model.SimplifiedPlaylistModel
 import pl.ejdev.spotifyplugin.service.PlayerSpotifyService
@@ -95,8 +94,8 @@ private fun SimplifiedPlaylistModel.tracksPanel(
             arrayOf(
                 jButton(icon = Run) {
                     playlistSpotifyService.addToQueue(track.href)
-                    playerSpotifyService.performPlaylistAction(AddItemToQueue(track.href))
-                    playerSpotifyService.performPlaylistAction(PlayAction)
+//                    playerSpotifyService.performPlaylistAction(AddItemToQueue(track.href))
+                    playerSpotifyService.performAction(PlayAction)
                 },
                 JLabel(track.name)
             )

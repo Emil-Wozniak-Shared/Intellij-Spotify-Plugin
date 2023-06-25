@@ -18,7 +18,7 @@ class PlayerSpotifyService : PersistentStateComponent<PlayerSpotifyService.Playe
         state.value = playerState.value
     }
 
-    fun performPlaylistAction(action: PlayerAction) {
+    fun performAction(action: PlayerAction) {
         basePlayerActions(action).onRight {
             playerState.value = it
         }
